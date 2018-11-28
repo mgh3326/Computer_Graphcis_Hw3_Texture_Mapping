@@ -12,19 +12,14 @@ using namespace std;
 typedef GLfloat point3[3]; /* array of 3 floats */
 typedef GLfloat position[3]; /* array of 3 floats */
 position p[36][18];
-position polygon_nomal_vector[36][18];
 position point_nomal_vector[36][18];
 int circle_number = 36;
 int point_number = 18;
-int temp_number = 1;//개체 구분변수
 GLuint texIDs[3];
 
-void draw_polygons_normal_vector(int _circle_number, int _point_number);
-void draw_points_normal_vector(int _circle_number, int _point_number);
-float*  cross_product(position p0, position p1, position p2, position cross_P);
 GLfloat my_position[4] = { 1,1,1,1 };
 
-GLuint texID;
+GLuint texID=1;
 void myNormalize(position &p)
 {
 	double d = p[0] * p[0] + p[1] * p[1] + p[2] * p[2];//길이를 1로 만듬
@@ -102,6 +97,8 @@ void Draw_point()
 			memcpy(p[i][j], temp, sizeof p[i][j]); //memcpy를 이용해야하는구나
 		}
 	}
+	position polygon_nomal_vector[36][18];
+
 	for (int i = 0; i < 36; i++)
 	{
 		for (int j = 0; j < 18; j++)
@@ -140,7 +137,7 @@ void draw_clean() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	// camera view configuration 
-	gluLookAt(1.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
+	gluLookAt(0.4f, 0.6f, 0.8f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
 	// draw
 	glColor3f(1.f, 0.f, 0.f); // 빨간색 지정
 	glBegin(GL_LINE_LOOP); // x축 그리기
@@ -160,102 +157,30 @@ void draw_clean() {
 	glEnd();
 }
 
-float*  cross_product(position p0, position p1, position p2, position cross_P)
-{
-	temp_number = 4;
-
-	position vect_A;
-	position vect_B;
-	for (int i = 0; i < 3; i++)
-	{
-		vect_A[i] = p1[i] - p0[i];
-		vect_B[i] = p2[i] - p0[i];
-	}
-
-	cross_P[0] = vect_A[1] * vect_B[2] - vect_A[2] * vect_B[1];
-	cross_P[1] = vect_A[2] * vect_B[0] - vect_A[0] * vect_B[2];
-	cross_P[2] = vect_A[0] * vect_B[1] - vect_A[1] * vect_B[0];
-
-	return cross_P;
-}
-void draw_polygons_normal_vector(int _circle_number = 36, int _point_number = 18)
-
-{
-	temp_number = 6;
-
-	draw_clean();
-	////테두리 그리기
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glColor3f(0.f, 0.f, 0.f); // 검은색 지정 //black
-	glBegin(GL_QUADS); // mode 선택
-	for (int i = 0; i < _circle_number; i++)
-	{
-		for (int j = 0; j < _point_number; j++)
-		{
-			glVertex3fv(p[i][j]);
-			glVertex3fv(p[i][((j + 1) % 18)]);
-			glVertex3fv(p[(i + 1) % 36][((j + 1) % 18)]);
-			glVertex3fv(p[(i + 1) % 36][(j)]);
-
-		}
-	}
-	glEnd();
-
-	glColor3f(0.f, 0.f, 0.f); // 검은색 지정
-
-	for (int i = 0; i < _circle_number; i++)
-	{
-		for (int j = 0; j < _point_number; j++)
-		{
-			/*glPointSize(3);
-			glLineWidth(3);*/
-			glBegin(GL_LINES); // mode 선택
-
-			/*glVertex3fv(a);*/
-			glVertex3f((p[i][j][0] + p[i][(j + 1) % 18][0] + p[(i + 1) % 36][(j + 1) % 18][0] + p[(i + 1) % 36][j][0]) / 4//본래 평면 점 (평면을 이루는 내점의 평균)
-				, (p[i][j][1] + p[i][(j + 1) % 18][1] + p[(i + 1) % 36][(j + 1) % 18][1] + p[(i + 1) % 36][j][1]) / 4,
-				(p[i][j][2] + p[i][(j + 1) % 18][2] + p[(i + 1) % 36][(j + 1) % 18][2] + p[(i + 1) % 36][j][2]) / 4);
-			glVertex3f((p[i][j][0] + p[i][(j + 1) % 18][0] + p[(i + 1) % 36][(j + 1) % 18][0] + p[(i + 1) % 36][j][0]) / 4 + polygon_nomal_vector[i][j][0] * 1.0//본래 평면 점에 외적한 값을 더해준다.
-				, (p[i][j][1] + p[i][(j + 1) % 18][1] + p[(i + 1) % 36][(j + 1) % 18][1] + p[(i + 1) % 36][j][1]) / 4 + polygon_nomal_vector[i][j][1] * 1.0,
-				(p[i][j][2] + p[i][(j + 1) % 18][2] + p[(i + 1) % 36][(j + 1) % 18][2] + p[(i + 1) % 36][j][2]) / 4 + polygon_nomal_vector[i][j][2] * 1.0);
-
-
-
-
-			glEnd();
-		}
-	}
-	glFlush();
-	glutSwapBuffers();
-
-}
-
-void draw_total(int _circle_number = 36, int _point_number = 18) {
+void draw_torus(){
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	for (int i = 0; i < _circle_number; i++)
+	for (int i = 0; i < circle_number; i++)
 	{
-		for (int j = 0; j < _point_number; j++)
+		for (int j = 0; j < point_number; j++)
 		{
 
 				glColor3f(0.f, 0.f, 1.f); // 파란색 지정
 				
-			glBegin(GL_QUAD_STRIP); // mode 선택
+			glBegin(GL_QUADS); // mode 선택
 			glNormal3fv(point_nomal_vector[i][j]);
 			glTexCoord2d(i / 36.0, j / 18.0);
 			glVertex3fv(p[i][j]);
 
-	
-
-			glNormal3fv(point_nomal_vector[(i + 1) % 36][((j + 1) % 18)]);
-			glTexCoord2d((i + 1) / 36.0, (j + 1) / 18.0);
-
-			glVertex3fv(p[(i + 1) % 36][((j + 1) % 18)]);
 
 			glNormal3fv(point_nomal_vector[i][((j + 1) % 18)]);
 			glTexCoord2d(i / 36.0, (j + 1) / 18.0);
-
 			glVertex3fv(p[i][((j + 1) % 18)]);
+
+			glNormal3fv(point_nomal_vector[(i + 1) % 36][((j + 1) % 18)]);
+			glTexCoord2d((i + 1) / 36.0, (j + 1) / 18.0);
+			glVertex3fv(p[(i + 1) % 36][((j + 1) % 18)]);
+
 
 			glNormal3fv(point_nomal_vector[(i + 1) % 36][(j)]);
 			glTexCoord2d((i + 1) / 36.0, j / 18.0);
@@ -284,7 +209,7 @@ void renderScene()
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texID);
 
-	draw_total(circle_number, point_number);
+	draw_torus();
 
 	glutSwapBuffers();
 }
@@ -294,12 +219,7 @@ void keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case 'q' | 'Q':
-		exit(0);
-		break;
-	case VK_ESCAPE:
-		exit(0);
-		break;
+
 	case '1':
 		texID = texIDs[0];
 
@@ -346,7 +266,7 @@ int main(int argc, char* argv[])
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); // 디스플레이모드 설정 // 왜 싱글로 해야되지
 	glutInitWindowSize(500, 500);
-	glutCreateWindow("Drawing the torus");
+	glutCreateWindow("Texture Mapping");
 	glutInitWindowPosition(0, 0);
 	glClearColor(255.0, 255.0, 255.0, 0.0); //alpha?
 	Draw_point();
