@@ -19,7 +19,7 @@ GLuint texIDs[3];
 
 GLfloat my_position[4] = { 1,1,1,1 };
 
-GLuint texID=1;
+GLuint texID = 0;
 void myNormalize(position &p)
 {
 	double d = p[0] * p[0] + p[1] * p[1] + p[2] * p[2];//길이를 1로 만듬
@@ -45,12 +45,12 @@ GLuint LoadTexture(int num)
 
 	FILE* file;
 	string str = "Material/";
-	string filename[3] = { "check","marble", "wood" };
+	string filename[3] = { "marble","wood", "check" };
 	str.append(filename[num]);
 	str.append(".raw");
 
 	file = fopen(str.c_str(), "rb");
-	
+
 	fread(image, WIDTH_HEIGHT * WIDTH_HEIGHT * 3, 1, file);
 
 	glGenTextures(1, &texture);
@@ -105,8 +105,8 @@ void Draw_point()
 		{
 			position a;
 
-			
-			myCrossProduct(p[i][j],  p[(i + 1) % 36][j], p[i][(j + 1) % 18], a);
+
+			myCrossProduct(p[i][j], p[(i + 1) % 36][j], p[i][(j + 1) % 18], a);
 
 			memcpy(polygon_nomal_vector[i][j], a, sizeof(a));
 		}
@@ -121,7 +121,7 @@ void Draw_point()
 				point_nomal_vector[i][j][k] = ((polygon_nomal_vector[i][j][k] +
 					polygon_nomal_vector[(i + 35) % 36][j][k] +
 					polygon_nomal_vector[i][(j + 17) % 18][k] +
-					polygon_nomal_vector[(i + 35) % 36][(j + 17) % 18][k]) /4 );
+					polygon_nomal_vector[(i + 35) % 36][(j + 17) % 18][k]) / 4);
 
 			}
 			myNormalize(point_nomal_vector[i][j]);//하나 안 안하나 같겠네
@@ -157,7 +157,7 @@ void draw_clean() {
 	glEnd();
 }
 
-void draw_torus(){
+void draw_torus() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	for (int i = 0; i < circle_number; i++)
@@ -165,8 +165,8 @@ void draw_torus(){
 		for (int j = 0; j < point_number; j++)
 		{
 
-				glColor3f(0.f, 0.f, 1.f); // 파란색 지정
-				
+			glColor3f(0.f, 0.f, 1.f); // 파란색 지정
+			glShadeModel(GL_SMOOTH);//크게 차이가 없네
 			glBegin(GL_QUADS); // mode 선택
 			glNormal3fv(point_nomal_vector[i][j]);
 			glTexCoord2d(i / 36.0, j / 18.0);
@@ -191,7 +191,7 @@ void draw_torus(){
 	}
 	glEnd();
 	////테두리 그리기
-	
+
 	//glFlush();
 	//glutSwapBuffers();
 }
@@ -232,7 +232,7 @@ void keyboard(unsigned char key, int x, int y)
 		texID = texIDs[2];
 
 		break;
-	
+
 	default:
 		break;
 	}
