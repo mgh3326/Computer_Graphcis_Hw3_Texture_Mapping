@@ -8,6 +8,8 @@
 using namespace std;
 #define PI 3.14159265
 #define WIDTH_HEIGHT 512
+#define WIDTH 512
+#define HEIGHT 512
 
 typedef GLfloat point3[3]; /* array of 3 floats */
 typedef GLfloat position[3]; /* array of 3 floats */
@@ -41,21 +43,20 @@ void myCrossProduct(position a, position b, position c, position &r)
 GLuint LoadTexture(int num)
 {
 	GLuint texture;
-	unsigned char* image = new unsigned char[WIDTH_HEIGHT * WIDTH_HEIGHT * 3];
+	unsigned char* texture_image = new unsigned char[WIDTH* HEIGHT * 3];
 
-	FILE* file;
+	FILE* input;
 	string str = "Material/";
 	string filename[3] = { "marble","wood", "check" };
 	str.append(filename[num]);
 	str.append(".raw");
 
-	file = fopen(str.c_str(), "rb");
+	input = fopen(str.c_str(), "rb");
 
-	fread(image, WIDTH_HEIGHT * WIDTH_HEIGHT * 3, 1, file);
-
+	fread(texture_image, WIDTH * HEIGHT * 3, 1, input);
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH_HEIGHT, WIDTH_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_image);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -64,8 +65,8 @@ GLuint LoadTexture(int num)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 
-	fclose(file);
-	free(image);
+	fclose(input);
+	free(texture_image);
 
 	return texture;
 }
